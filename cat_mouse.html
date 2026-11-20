@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cat and mouse</title>
+
+<!--
+=====================================================================
+ ANIMATION 1 - CAT AND MOUSE   (how to edit)
+=====================================================================
+ Change the values in the block called SETTINGS 1 (inside <script>).
+
+   catColor, mouseColor ........ colours (any CSS colour)
+   lapSeconds .................. seconds for one lap (smaller = faster)
+   direction ................... 1 = clockwise, -1 = anticlockwise
+   orbitWidth, orbitHeight ..... size of the mouse path
+   mouseSize ................... size of the mouse
+
+ Page colours are in the CSS under :root (--page-bg, --card-bg, --s1-bg).
+=====================================================================
+-->
+
+<style>
+  :root{
+    --page-bg:#12141a;      /* page background */
+    --card-bg:#1b1e27;      /* box around each animation */
+    --text:#e8e9ee;         /* text colour */
+    --muted:#9a9eb0;        /* small caption colour */
+    --s1-bg:#243042;        /* animation 1 background */
+    --s2-bg:#2b2f3a;        /* animation 2 background */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px 14px 60px;background:var(--page-bg);color:var(--text);
+       font-family:Georgia,"Times New Roman",serif;line-height:1.5}
+  main{max-width:720px;margin:0 auto}
+  h1{font-size:1.5rem;margin:0 0 4px}
+  h2{font-size:1.1rem;margin:0 0 2px}
+  p.cap{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+  section{background:var(--card-bg);border-radius:14px;padding:14px;margin:18px 0}
+  svg{width:100%;height:auto;display:block;border-radius:10px}
+
+  /* ---------- animation 1 shapes ---------- */
+  .floor1{fill:var(--s1-bg)}
+  .orbit{fill:none;stroke:#ffffff22;stroke-width:2;stroke-dasharray:6 8}
+  .cat-body{fill:var(--cat)}
+  .cat-ear{fill:var(--cat)}
+  .cat-eye{fill:#fff}
+  .pupil{fill:#111}
+  .cat-line{stroke:#111;stroke-width:1.6;fill:none;stroke-linecap:round}
+  .cat-tail{stroke:var(--cat);stroke-width:12;fill:none;stroke-linecap:round}
+  .m-body{fill:var(--mouse)}
+  .m-tail{stroke:#d99;stroke-width:2.5;fill:none;stroke-linecap:round}
+
+  </style>
+</head>
+<body>
+<main>
+  <!-- ============ ANIMATION 1: CAT AND MOUSE ============ -->
+  <section>
+    <h2>1. The cat and the mouse</h2>
+    <p class="cap">The mouse runs round the cat. The cat keeps its eyes on it.</p>
+    <svg id="s1" viewBox="0 0 400 300">
+      <rect class="floor1" width="400" height="300"/>
+      <ellipse id="orbit1" class="orbit"/>
+      <g id="behind1"></g>
+      <g id="cat">
+        <path id="tail" class="cat-tail" d="M232 225 C270 225 272 175 250 168"/>
+        <ellipse class="cat-body" cx="200" cy="198" rx="36" ry="42"/>
+        <g id="head">
+          <polygon class="cat-ear" points="176,128 180,100 198,122"/>
+          <polygon class="cat-ear" points="224,128 220,100 202,122"/>
+          <circle class="cat-body" cx="200" cy="148" r="30"/>
+          <circle class="cat-eye" cx="188" cy="144" r="8"/>
+          <circle class="cat-eye" cx="212" cy="144" r="8"/>
+          <circle id="pupilL" class="pupil" cx="188" cy="144" r="4"/>
+          <circle id="pupilR" class="pupil" cx="212" cy="144" r="4"/>
+          <path d="M196 156 L204 156 L200 161 Z" fill="#e58"/>
+          <path class="cat-line" d="M200 161 Q194 168 188 165 M200 161 Q206 168 212 165"/>
+          <path class="cat-line" d="M170 156 L186 158 M170 164 L186 162 M230 156 L214 158 M230 164 L214 162"/>
+        </g>
+      </g>
+      <g id="front1"></g>
+    </svg>
+  </section>
+</main>
+
+<script>
+/* ===== SETTINGS 1 : cat and mouse ===== */
+const S1 = {
+  catColor:    "#f0a35e",  // cat colour
+  mouseColor:  "#b9b9c4",  // mouse colour
+  lapSeconds:  4,          // seconds per lap (smaller = faster)
+  direction:   1,          // 1 = clockwise, -1 = anticlockwise
+  orbitWidth:  140,        // half width of the mouse path
+  orbitHeight: 62,         // half height of the mouse path
+  mouseSize:   1.1         // size of the mouse
+};
+/* ===== end of settings ===== */
+
+(function(){
+  const svg = document.getElementById("s1");
+  svg.style.setProperty("--cat", S1.catColor);
+  svg.style.setProperty("--mouse", S1.mouseColor);
+  const CX = 200, CY = 205;               // centre of the cat
+  const o = document.getElementById("orbit1");
+  o.setAttribute("cx",CX); o.setAttribute("cy",CY);
+  o.setAttribute("rx",S1.orbitWidth); o.setAttribute("ry",S1.orbitHeight);
+
+  const mouse = document.createElementNS("http://www.w3.org/2000/svg","g");
+  mouse.innerHTML =
+    '<path class="m-tail" d="M-11 0 C-20 -7 -27 7 -36 0"/>' +
+    '<ellipse class="m-body" rx="13" ry="7.5"/>' +
+    '<circle class="m-body" cx="11" cy="0" r="5.5"/>' +
+    '<circle class="m-body" cx="7" cy="-6" r="4" style="filter:brightness(.85)"/>' +
+    '<circle cx="15" cy="-1" r="1.8" fill="#e58"/><circle cx="12" cy="-2" r="1" fill="#111"/>';
+  const behind = document.getElementById("behind1"),
+        front  = document.getElementById("front1");
+  const head = document.getElementById("head"), tail = document.getElementById("tail");
+  const pL = document.getElementById("pupilL"), pR = document.getElementById("pupilR");
+
+  function frame(ms){
+    const t = ms/1000;
+    const a = S1.direction * t * 2*Math.PI / S1.lapSeconds;
+    const x = CX + S1.orbitWidth  * Math.cos(a);
+    const y = CY + S1.orbitHeight * Math.sin(a);
+    const dx = -S1.orbitWidth * Math.sin(a) * S1.direction;
+    const dy =  S1.orbitHeight * Math.cos(a) * S1.direction;
+    const heading = Math.atan2(dy,dx)*180/Math.PI;
+    mouse.setAttribute("transform",
+      `translate(${x} ${y}) rotate(${heading}) scale(${S1.mouseSize})`);
+    // mouse passes behind the cat when it is on the far side
+    const layer = (y < CY) ? behind : front;
+    if (mouse.parentNode !== layer) layer.appendChild(mouse);
+    // cat looks at the mouse
+    const ang = Math.atan2(y-144, x-200);
+    const px = Math.cos(ang)*3.5, py = Math.sin(ang)*3.5;
+    pL.setAttribute("cx",188+px); pL.setAttribute("cy",144+py);
+    pR.setAttribute("cx",212+px); pR.setAttribute("cy",144+py);
+    head.setAttribute("transform",`rotate(${(x-200)/S1.orbitWidth*9} 200 175)`);
+    tail.setAttribute("transform",`rotate(${Math.sin(t*2.2)*12} 232 225)`);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

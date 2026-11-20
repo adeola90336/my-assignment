@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dramatic conversation</title>
+
+<!--
+=====================================================================
+ ANIMATION 3 - DRAMATIC CONVERSATION   (how to edit)
+=====================================================================
+ Change the values in the block called SETTINGS 3 (inside <script>).
+
+   nameA, nameB ................ names shown under the characters
+   colourA, colourB ............ character colours
+   typeSpeed ................... letters per second
+   holdTime .................... pause after each line (seconds)
+   shake ....................... true / false, screen shake on shouts
+   script ...................... the dialogue. Each line has:
+        who:  "A" (character with one leg and a crutch) or "B"
+        text: what is said
+        mood: "normal", "sad", "shout" or "soft"
+              (mood changes the light colour and the body language)
+
+ Page colours are in the CSS under :root (--page-bg, --card-bg).
+=====================================================================
+-->
+
+<style>
+  :root{
+    --page-bg:#12141a;      /* page background */
+    --card-bg:#1b1e27;      /* box around each animation */
+    --text:#e8e9ee;         /* text colour */
+    --muted:#9a9eb0;        /* small caption colour */
+    --s1-bg:#243042;        /* animation 1 background */
+    --s2-bg:#2b2f3a;        /* animation 2 background */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px 14px 60px;background:var(--page-bg);color:var(--text);
+       font-family:Georgia,"Times New Roman",serif;line-height:1.5}
+  main{max-width:720px;margin:0 auto}
+  h1{font-size:1.5rem;margin:0 0 4px}
+  h2{font-size:1.1rem;margin:0 0 2px}
+  p.cap{margin:0 0 10px;color:var(--muted);font-size:.9rem}
+  section{background:var(--card-bg);border-radius:14px;padding:14px;margin:18px 0}
+  svg{width:100%;height:auto;display:block;border-radius:10px}
+
+  /* ---------- animation 3 stage ---------- */
+  .stage{position:relative;border-radius:10px;overflow:hidden;background:#07080c}
+  .spot{position:absolute;inset:0;pointer-events:none;transition:background .6s;
+        background:radial-gradient(circle at var(--sx,30%) 70%,var(--sc,#f5e6b3) 0%,transparent 55%);opacity:.38}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+  .stage.boom .flash{animation:boom .45s ease-out}
+  .stage.boom svg{animation:shake .45s linear}
+  @keyframes boom{0%{opacity:.85}100%{opacity:0}}
+  @keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-6px,3px)}
+                   40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,-2px)}80%{transform:translate(3px,4px)}}
+  .bubble{position:absolute;top:5%;max-width:44%;padding:8px 12px;border-radius:12px;
+          background:#f7f4ec;color:#15161b;font-size:clamp(.72rem,2.6vw,1rem);
+          min-height:2.2em;opacity:0;transition:opacity .25s}
+  .bubble.on{opacity:1}
+  .bubble::after{content:"";position:absolute;bottom:-9px;width:0;height:0;
+        border:9px solid transparent;border-top-color:#f7f4ec;border-bottom:0}
+  #bubA{left:3%}  #bubA::after{left:55%}
+  #bubB{right:3%} #bubB::after{right:30%}
+  .limb{stroke:var(--col);stroke-width:7;stroke-linecap:round;fill:none}
+  .headc{fill:none;stroke:var(--col);stroke-width:6}
+  .dot{fill:var(--col)}
+  .crutch{stroke:#c9a56a;stroke-width:5;stroke-linecap:round;fill:none}
+  .name{fill:#cfd2de;font:15px Georgia,serif;text-anchor:middle}
+</style>
+</head>
+<body>
+<main>
+  <!-- ============ ANIMATION 3: DRAMATIC CONVERSATION ============ -->
+  <section>
+    <h2>3. A conversation</h2>
+    <p class="cap">Two friends talk. The one on the left has one leg and uses a crutch.</p>
+    <div class="stage" id="stage">
+      <div class="spot" id="spot"></div>
+      <svg id="s3" viewBox="0 0 600 320">
+        <rect width="600" height="320" fill="#0b0c11"/>
+        <rect y="252" width="600" height="68" fill="#15171f"/>
+        <line x1="0" y1="252" x2="600" y2="252" stroke="#2a2d3a" stroke-width="2"/>
+      </svg>
+      <div class="bubble" id="bubA"></div>
+      <div class="bubble" id="bubB"></div>
+      <div class="flash"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===== SETTINGS 3 : dramatic conversation ===== */
+const S3 = {
+  nameA:   "Me",         // name under the character with the crutch
+  nameB:   "Friend",     // name under the other character
+  colourA: "#7fd1ff",    // colour of character A
+  colourB: "#ffb86b",    // colour of character B
+  typeSpeed: 26,         // letters per second
+  holdTime:  1.7,        // seconds to wait after each line
+  shake:     true,       // screen shake on "shout" lines
+  // The dialogue. who: "A" or "B".  mood: "normal", "sad", "shout", "soft"
+  script: [
+    { who:"A", mood:"sad",    text:"They told me I would never walk the same again." },
+    { who:"B", mood:"normal", text:"And did you believe them?" },
+    { who:"A", mood:"normal", text:"For one night. Then the morning came." },
+    { who:"B", mood:"normal", text:"What changed?" },
+    { who:"A", mood:"shout",  text:"I stopped waiting for permission to stand!" },
+    { who:"B", mood:"soft",   text:"Then stand. I will walk beside you." },
+    { who:"A", mood:"soft",   text:"Together, then." }
+  ]
+};
+// Light colour, arm lift (degrees) and head tilt (degrees) for each mood
+const MOODS = {
+  normal:{ light:"#f5e6b3", arm:35, tilt:0  },
+  sad:   { light:"#6f8fd8", arm:10, tilt:14 },
+  shout: { light:"#ff5a4d", arm:100,tilt:-6 },
+  soft:  { light:"#ffd27a", arm:18, tilt:5  }
+};
+/* ===== end of settings ===== */
+
+(function(){
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("s3");
+  const stage = document.getElementById("stage");
+  const spot = document.getElementById("spot");
+  const bub = { A:document.getElementById("bubA"), B:document.getElementById("bubB") };
+  const POS = { A:{x:170, pct:"28%"}, B:{x:430, pct:"72%"} };
+
+  // Draw one character. It faces right; flip=-1 turns it to face left.
+  function figure(col, amputee, x, flip, name){
+    const g = document.createElementNS(NS,"g");
+    g.style.setProperty("--col", col);
+    g.setAttribute("transform",`translate(${x} 0) scale(${flip} 1)`);
+    const legs = amputee
+      ? '<line class="limb" x1="0" y1="172" x2="14" y2="249"/><line class="limb" x1="14" y1="249" x2="28" y2="249"/>' +
+        '<line class="limb" x1="0" y1="172" x2="-8" y2="198"/><circle class="dot" cx="-8" cy="198" r="4.5"/>'
+      : '<line class="limb" x1="0" y1="172" x2="-14" y2="249"/><line class="limb" x1="-14" y1="249" x2="-28" y2="249"/>' +
+        '<line class="limb" x1="0" y1="172" x2="16" y2="249"/><line class="limb" x1="16" y1="249" x2="30" y2="249"/>';
+    const other = amputee
+      ? '<line class="crutch" x1="-14" y1="140" x2="-36" y2="250"/><line class="crutch" x1="-22" y1="140" x2="-8" y2="140"/>' +
+        '<line class="limb" x1="0" y1="138" x2="-21" y2="176"/>'
+      : '<line class="limb" x1="0" y1="138" x2="-18" y2="172"/>';
+    g.innerHTML =
+      '<g class="wrap">' + legs +
+      '<line class="limb" x1="0" y1="118" x2="0" y2="172"/>' + other +
+      '<g class="arm"><line class="limb" x1="0" y1="138" x2="28" y2="168"/></g>' +
+      '<g class="head"><circle class="headc" cx="0" cy="96" r="22"/>' +
+      '<circle class="dot" cx="-7" cy="93" r="2.6"/><circle class="dot" cx="9" cy="93" r="2.6"/>' +
+      '<ellipse class="mouth dot" cx="4" cy="106" rx="5" ry="1.2"/></g></g>';
+    svg.appendChild(g);
+    const t = document.createElementNS(NS,"text");
+    t.setAttribute("class","name"); t.setAttribute("x",x); t.setAttribute("y",282);
+    t.textContent = name; svg.appendChild(t);
+    return { wrap:g.querySelector(".wrap"), arm:g.querySelector(".arm"),
+             head:g.querySelector(".head"), mouth:g.querySelector(".mouth") };
+  }
+  const C = {
+    A: figure(S3.colourA, true,  POS.A.x,  1, S3.nameA),
+    B: figure(S3.colourB, false, POS.B.x, -1, S3.nameB)
+  };
+
+  let i = 0, chars = 0, phase = "typing", last = 0, holdLeft = 0, started = false;
+  function startLine(){
+    const L = S3.script[i], m = MOODS[L.mood] || MOODS.normal;
+    bub.A.classList.remove("on"); bub.B.classList.remove("on");
+    bub[L.who].textContent = ""; bub[L.who].classList.add("on");
+    spot.style.setProperty("--sc", m.light);
+    spot.style.setProperty("--sx", POS[L.who].pct);
+    chars = 0; phase = "typing";
+    if (L.mood === "shout" && S3.shake){
+      stage.classList.remove("boom"); void stage.offsetWidth; stage.classList.add("boom");
+    }
+  }
+
+  function frame(ms){
+    const t = ms/1000, dt = last ? t-last : 0; last = t;
+    if (!started){ started = true; startLine(); }
+    const L = S3.script[i], m = MOODS[L.mood] || MOODS.normal;
+    if (phase === "typing"){
+      chars += dt * S3.typeSpeed;
+      bub[L.who].textContent = L.text.slice(0, Math.floor(chars));
+      if (chars >= L.text.length){ phase = "hold"; holdLeft = S3.holdTime; }
+    } else {
+      holdLeft -= dt;
+      if (holdLeft <= 0){ i = (i+1) % S3.script.length; startLine(); }
+    }
+    ["A","B"].forEach(k => {
+      const c = C[k], speaking = (k === L.who);
+      const talking = speaking && phase === "typing";
+      c.wrap.setAttribute("transform",`translate(0 ${Math.sin(t*2 + (k==="A"?0:1.5))*1.6})`);
+      const lift = talking ? m.arm * (0.55 + 0.45*Math.sin(t*7)) : 0;
+      c.arm.setAttribute("transform",`rotate(${-lift} 0 138)`);
+      c.head.setAttribute("transform",`rotate(${speaking ? m.tilt : 0} 0 118)`);
+      c.mouth.setAttribute("ry", talking ? 1.2 + 3.6*Math.abs(Math.sin(t*14)) : 1.2);
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
